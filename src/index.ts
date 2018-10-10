@@ -5,8 +5,18 @@ export default class VueFixedHeader extends Vue {
   $: (selector: string) => any = () => null
   check: () => void = () => null
   tag: string | null = null
+
   @Prop({ default: 0, type: Number })
   threshold!: number
+
+  @Prop()
+  _window: any
+
+  @Prop()
+  _navigator: any
+
+  @Prop()
+  _document: any
 
   mounted() {
     this.$ = (e: string) => document.querySelector(e)
@@ -15,21 +25,24 @@ export default class VueFixedHeader extends Vue {
   }
 
   getTargetTag() {
-    if (navigator.userAgent.includes('Edge')) return 'body'
-    if (
-      !(window as any).chrome &&
-      'WebkitAppearance' in (document.documentElement as any).style
-    )
+    const n = this._navigator || navigator
+    const w = this._window || window
+    const d = this._document || document
+
+    if (n.userAgent.includes('Edge')) return 'body'
+    if (!w.chrome && 'WebkitAppearance' in d.documentElement.style)
       return 'body'
     return 'html'
   }
 
   registerEvent() {
-    window.addEventListener('scroll', this.check)
+    const w = this._window || window
+    w.addEventListener('scroll', this.check)
   }
 
   removeEvent() {
-    window.removeEventListener('scroll', this.check)
+    const w = this._window || window
+    w.removeEventListener('scroll', this.check)
   }
 
   main() {
